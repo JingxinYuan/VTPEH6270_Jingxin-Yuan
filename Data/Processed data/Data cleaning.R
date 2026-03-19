@@ -1,12 +1,3 @@
----
-title: "Data Cleaning"
-output: html_document
----
-
-# Load Data
-
-```{r, results='hide'}
-
 # Packages
 library(tidyverse)
 library(scales)
@@ -23,13 +14,6 @@ data_ckd = read.csv("IHME-GBD_CKD_20260130.csv")
 # Preview the data
 head(data_ckd)
 
-```
-
-# Tidy Data
-
-*Check of NA*
-```{r, results='hide'}
-
 #Check if it contains NA
 n_na <- sum(is.na(data_ckd))
 cat("The amount of NA is",n_na,end='\n')
@@ -37,12 +21,7 @@ cat("The amount of NA is",n_na,end='\n')
 #Check available years
 sort(unique(data_ckd$year))
 
-```
-There is no NA.
-
-*Check of Abnormal Value*
-```{r, results='hide'}
-
+#Check of Abnormal Value
 #Define IQR measure to detect abnormal value
 detect_outliers <- function(x) {
   Q1 <- quantile(x, 0.25, na.rm = TRUE)
@@ -67,8 +46,9 @@ print(outlier_summary)
 median_vals <- apply(data_ckd[numeric_cols], 2, median, na.rm = TRUE)
 
 data_ckd[numeric_cols] <- lapply(numeric_cols, function(col) {
-	  data_ckd[[col]] <- ifelse(outliers_df[[col]], median_vals[col], data_ckd[[col]])
-	})
+  data_ckd[[col]] <- ifelse(outliers_df[[col]], median_vals[col], data_ckd[[col]])
+})
 
+#Output processed data
 write.csv(data_ckd, "C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Data/Processed data/IHME-GBD_CKD_Processed.csv")
-```
+
