@@ -23,7 +23,10 @@ Email: jy2245@cornell.edu
 - This project picks data on 60+ years old people in China from 2013 to 2023. It includes CKD prevalence, DALYs and death rate, and is stratified by year, sex and age group. 
 
 # Links to reports
-
+- Output/Reports/Data_exploration.pdf
+  https://github.com/JingxinYuan/VTPEH6270_CP05_Jingxin-Yuan/blob/main/Output/Reports/Data_exploration.pdf
+- Output/Reports/Data_simulation.pdf
+  https://github.com/JingxinYuan/VTPEH6270_CP05_Jingxin-Yuan/blob/main/Output/Reports/Data_simulation.pdf
 
 # AI tool disclosure
 ChatGPT was used for guidance on code structure and debugging. All analysis and interpretation were completed by the author.
