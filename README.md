@@ -1,4 +1,4 @@
-# VTPEH6270_CP05_Jingxin-Yuan
+# VTPEH6270_Jingxin-Yuan
 
 # Project title and brief description
 ## Project title
