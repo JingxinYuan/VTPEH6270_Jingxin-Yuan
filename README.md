@@ -7,8 +7,7 @@ The Burden of chronic kidney disease (CKD) in China in 2013–2023
 This project examines the burden of CKD in China in 2013-2023, including prevalence, DALYs and mortality among people aged 60 years and older. It decribes how these outcomes change over time and explores whether mortality rates differ between males and females. Then it puts more attention on mortality, using a derived variable to capture the difference between male and female mortality rates. A simulation study is also included to examine how sample size, noise, and effect size can influence the estimation of these difference in mortality.
 
 # Author and affiliations
-Jingxin Yuan
-Master of Public Health in Cornell University
+Jingxin Yuan, Master of Public Health in Cornell University
 
 # Contact information
 Email: jy2245@cornell.edu
