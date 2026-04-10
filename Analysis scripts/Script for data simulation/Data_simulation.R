@@ -12,7 +12,7 @@ library(tidyverse)
 library(knitr)
 
 # Set working directory
-setwd("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Data/Processed data")
+setwd("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Data/Processed data")
 
 # Load file
 data_ckd = read.csv("IHME-GBD_CKD_Processed.csv")
@@ -169,4 +169,4 @@ p5 <- ggplot(viz_df, aes(x = sample_size, y = estimated_difference, color = effe
     panel.spacing = unit(1.5, "lines")
   )
 
-ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Output/Figures/Simulation results across effect sizes, sample sizes and noise.png", plot = p5)
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Simulation results across effect sizes, sample sizes and noise.png", plot = p5)

@@ -44,7 +44,7 @@ library(knitr)
 ```{r}
 
 # Set working directory
-setwd("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Data/Original data")
+setwd("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Data/Original data")
 
 # Load file
 data_ckd = read.csv("IHME-GBD_CKD_20260130.csv")
@@ -100,7 +100,7 @@ data_ckd[numeric_cols] <- lapply(numeric_cols, function(col) {
 	})
 
 # Output processed data
-write.csv(data_ckd, "C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Data/Processed data/IHME-GBD_CKD_Processed.csv")
+write.csv(data_ckd, "C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Data/Processed data/IHME-GBD_CKD_Processed.csv")
 
 ```
 
@@ -188,7 +188,7 @@ p1 <- ggplot(data_ckd_plot, aes(x = val)) +
   theme(
     plot.title = element_text(hjust = 0.5)
   )
-ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Output/Figures/Distribution on the burden of CKD of 60+ years people in China.png",plot = p1)
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Distribution on the burden of CKD of 60+ years people in China.png",plot = p1)
 
 # Show plot
 p1
@@ -226,7 +226,7 @@ p2 <- ggplot(data_ckd_scatterplot, aes(x = year, y = val, color = sex_name)) +
   theme(
     plot.title = element_text(hjust = 0.5)
   )
-ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Output/Figures/Scatterplot on the burden of CKD of 60+ years people in China.png",plot = p2)
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Scatterplot on the burden of CKD of 60+ years people in China.png",plot = p2)
 
 # Show plot
 p2
@@ -300,13 +300,13 @@ p3 <- ggplot(data_ckd_old, aes(x = year, y = val, color = sex_name)) +
     plot.title = element_text(hjust = 0.5),
     legend.position = "top"
   )
-ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Output/Figures/Gender trend on mortality of CKD of 60+ years people in China.png",plot = p3)
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Gender trend on mortality of CKD of 60+ years people in China.png",plot = p3)
 
 # Show plot
 p3
 
 ```
-*This time trend visualization shows that CKD mortality rates among adults aged 60+ years in China declined from the 2010 to 2020, followed by a slight increase in subsequent years. Across the entire study period, mortality rates remain consistently higher in males than in females. The parallel movement of the two lines suggests that both genders experienced similar temporal patterns, but males maintained a persistent higher mortality burden. Overall, the figure supports the hypothesis of a sustained gender disparity in CKD mortality.*
+*This time trend visualization shows that CKD mortality rates among adults aged 60+ years in China declined from the 2013 to 2023, followed by a slight increase in subsequent years. Across the entire study period, mortality rates remain consistently higher in males than in females. The parallel movement of the two lines suggests that both genders experienced similar temporal patterns, but males maintained a persistent higher mortality burden. Overall, the figure supports the hypothesis of a sustained gender disparity in CKD mortality.*
 
 ## Visualize mortality difference between male and female
 ```{r}
@@ -323,7 +323,7 @@ p4 <- ggplot(data_ckd_old, aes(x = year, y = mortality_difference)) +
   theme(
     plot.title = element_text(hjust = 0.5)
   )
-ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Output/Figures/Mortality difference between gender of CKD of 60+ years people in China.png",plot = p4)
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Mortality difference between gender of CKD of 60+ years people in China.png",plot = p4)
 
 # Show plot
 p4

@@ -7,7 +7,7 @@ library(knitr)
 
 # Part 1: Load data
 # Set working directory
-setwd("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Data/Original data")
+setwd("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Data/Original data")
 
 # Load file
 data_ckd = read.csv("IHME-GBD_CKD_20260130.csv")
@@ -53,7 +53,7 @@ data_ckd[numeric_cols] <- lapply(numeric_cols, function(col) {
 })
 
 # Output processed data
-write.csv(data_ckd, "C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Data/Processed data/IHME-GBD_CKD_Processed.csv")
+write.csv(data_ckd, "C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Data/Processed data/IHME-GBD_CKD_Processed.csv")
 
 
 # Part 3: Variable Overview
@@ -130,7 +130,7 @@ p1 <- ggplot(data_ckd_plot, aes(x = val)) +
   theme(
     plot.title = element_text(hjust = 0.5)
   )
-ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Output/Figures/Distribution on the burden of CKD of 60+ years people in China.png",plot = p1)
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Distribution on the burden of CKD of 60+ years people in China.png",plot = p1)
 
 
 # Part 5: Broad trend exploration
@@ -158,7 +158,7 @@ p2 <- ggplot(data_ckd_scatterplot, aes(x = year, y = val, color = sex_name)) +
   theme(
     plot.title = element_text(hjust = 0.5)
   )
-ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Output/Figures/Scatterplot on the burden of CKD of 60+ years people in China.png",plot = p2)
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Scatterplot on the burden of CKD of 60+ years people in China.png",plot = p2)
 
 
 # Part 6: Focused subset for mortality and gender
@@ -208,7 +208,7 @@ p3 <- ggplot(data_ckd_old, aes(x = year, y = val, color = sex_name)) +
     plot.title = element_text(hjust = 0.5),
     legend.position = "top"
   )
-ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Output/Figures/Gender trend on mortality of CKD of 60+ years people in China.png",plot = p3)
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Gender trend on mortality of CKD of 60+ years people in China.png",plot = p3)
 
 # Visualize mortality difference between male and female
 p4 <- ggplot(data_ckd_old, aes(x = year, y = mortality_difference)) +
@@ -223,4 +223,4 @@ p4 <- ggplot(data_ckd_old, aes(x = year, y = mortality_difference)) +
   theme(
     plot.title = element_text(hjust = 0.5)
   )
-ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_CP05_Jingxin-Yuan/Output/Figures/Mortality difference between gender of CKD of 60+ years people in China.png",plot = p4)
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Mortality difference between gender of CKD of 60+ years people in China.png",plot = p4)
