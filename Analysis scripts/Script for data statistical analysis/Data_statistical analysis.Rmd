@@ -148,7 +148,7 @@ qqline(female_data)
 
 ```
 
-The Shapiro-Wilk test suggested that mortality rates in both males (p = 0.2769) and females (p = 0.2076) don't significantly deviate from normality. The QQ plots also show that most points lie close to the reference line, with slight deviations at the tails. Overall, the normality assumption appears reasonable, supporting the use of a t-test.
+The Shapiro-Wilk test suggested that mortality rates in both males (p = 0.2769) and females (p = 0.2076) don't significantly deviate from normality. The QQ plots also show that most points lie close to the reference line, with slight deviations at the tails. Overall, the normality assumption appears reasonable, supporting the use of a t-test. In addition to normality, the t-test also assumes that observations are independent and that the two groups have similar variability. In this dataset, the values are reported by year, so there could be some temporal pattern, but for this analysis they are treated as approximately independent. The variability between males and females is also fairly similar, and a Welch two-sample t-test is used, which does not require equal variances. Taken together, these assumptions seem reasonable for this comparison.
 
 ### Code
 
