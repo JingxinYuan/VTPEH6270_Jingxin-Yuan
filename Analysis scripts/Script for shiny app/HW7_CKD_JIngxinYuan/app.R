@@ -1,189 +1,183 @@
 library(shiny)
-library(ggplot2)
-library(dplyr)
-library(DT)
-library(readr)
+library(tidyverse)
 
-# Load data
-ckd <- read_csv("IHME-GBD_CKD_20260130.csv")
+data_ckd <- read.csv("IHME-GBD_CKD_20260130.csv")
 
-# Clean data
-ckd <- ckd %>%
+data_ckd <- data_ckd %>%
   mutate(
-    year = as.numeric(year),
+    year = as.integer(year),
     val = as.numeric(val),
-    measure_name = as.character(measure_name),
-    sex_name = as.character(sex_name),
-    age_name = as.character(age_name),
-    location_name = as.character(location_name),
-    metric_name = as.character(metric_name),
-    cause_name = as.character(cause_name)
-  ) %>%
-  filter(
-    !is.na(year),
-    !is.na(val),
-    !is.na(measure_name),
-    !is.na(sex_name),
-    !is.na(age_name)
+    lower = as.numeric(lower),
+    upper = as.numeric(upper)
   )
 
-# Optional filters to keep the app cleaner
-# Adjust these only if needed
-ckd <- ckd %>%
-  filter(location_name == "China")
-
 ui <- fluidPage(
-  titlePanel("CKD Burden Explorer"),
+  titlePanel("Chronic Kidney Disease (CKD) Mortality and Burden in Older Adults in China"),
   
   sidebarLayout(
     sidebarPanel(
-      h4("Select parameters"),
+      h4("App Goal"),
+      p("This app is used to look at CKD trends among adults aged 60+ in China. Users can choose the CKD measure, sex group, and year range. The app also gives a simple comparison between males and females."),
       
       selectInput(
         "measure",
-        "Measure:",
-        choices = sort(unique(ckd$measure_name)),
-        selected = sort(unique(ckd$measure_name))[1]
+        "Choose CKD measure:",
+        choices = c(
+          "Deaths",
+          "DALYs (Disability-Adjusted Life Years)",
+          "Prevalence"
+        ),
+        selected = "Deaths"
       ),
       
-      selectInput(
+      checkboxGroupInput(
         "sex",
-        "Sex:",
-        choices = sort(unique(ckd$sex_name)),
-        selected = sort(unique(ckd$sex_name))[1]
-      ),
-      
-      selectInput(
-        "age_group",
-        "Age group:",
-        choices = sort(unique(ckd$age_name)),
-        selected = sort(unique(ckd$age_name))[1]
+        "Choose sex:",
+        choices = c("Male", "Female"),
+        selected = c("Male", "Female")
       ),
       
       sliderInput(
-        "year_range",
-        "Year range:",
-        min = min(ckd$year, na.rm = TRUE),
-        max = max(ckd$year, na.rm = TRUE),
-        value = c(min(ckd$year, na.rm = TRUE), max(ckd$year, na.rm = TRUE)),
+        "years",
+        "Choose year range:",
+        min = 2013,
+        max = 2023,
+        value = c(2013, 2023),
+        step = 1,
         sep = ""
       ),
       
-      radioButtons(
-        "plot_type",
-        "Plot type:",
-        choices = c("Line plot", "Bar plot"),
-        selected = "Line plot"
-      ),
-      
-      actionButton("update", "Update View")
+      actionButton("run_test", "Run Statistical Test")
     ),
     
     mainPanel(
-      tabsetPanel(
-        tabPanel(
-          "Trend Plot",
-          br(),
-          plotOutput("trend_plot", height = "450px"),
-          br(),
-          verbatimTextOutput("summary_text")
-        ),
-        
-        tabPanel(
-          "Summary Table",
-          br(),
-          DTOutput("summary_table")
-        ),
-        
-        tabPanel(
-          "About & References",
-          br(),
-          h4("App Goal"),
-          p("This app was developed to explore temporal trends in chronic kidney disease (CKD) burden in China by measure, sex, age group, and year."),
-          
-          h4("Broad Context"),
-          p("Chronic kidney disease (CKD) is an important public health problem in China. Examining variation across sex, age group, and time can help users better understand patterns in disease burden."),
-          
-          h4("Data Source"),
-          p("This project uses data from the Global Burden of Disease(GBD) 2023 databases. The complete data set and accompanying information are available at [vizhub.healthdata.org/gbd-results](https://vizhub.healthdata.org/gbd-results/)"),
-          
-          h4("Methods"),
-          p("The app provides interactive filtering and descriptive visualization of CKD burden estimates. Line plots display temporal patterns, and the shaded band represents the uncertainty interval when available."),
-          
-          h4("Repository"),
-          p("Code repository: https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan.git"),
-          
-          h4("AI Disclosure"),
-          p("AI tools were used to support coding troubleshooting and interface refinement. All final decisions, code checking, and interpretation were reviewed by the author.")
-        )
-      )
+      h3("Question"),
+      p("Do CKD burden rates among adults aged 60+ in China differ by sex over time?"),
+      
+      h3("Trend Plot"),
+      plotOutput("trend_plot"),
+      
+      h3("Summary Statistics"),
+      tableOutput("summary_table"),
+      
+      h3("Statistical Test Results"),
+      verbatimTextOutput("stat_result"),
+      
+      h3("Interpretation"),
+      verbatimTextOutput("interpretation")
     )
   )
 )
 
-# Serve
-server <- function(input, output, session) {
+server <- function(input, output) {
   
   filtered_data <- reactive({
-    ckd %>%
+    data_ckd %>%
       filter(
+        location_name == "China",
+        age_name == "60+ years",
         measure_name == input$measure,
-        sex_name == input$sex,
-        age_name == input$age_group,
-        year >= input$year_range[1],
-        year <= input$year_range[2]
-      ) %>%
-      arrange(year)
+        sex_name %in% input$sex,
+        year >= input$years[1],
+        year <= input$years[2]
+      )
   })
   
   output$trend_plot <- renderPlot({
-    dat <- filtered_data()
-    req(nrow(dat) > 0)
+    plot_data <- filtered_data()
     
-    if (input$plot_type == "Line plot") {
-      ggplot(dat, aes(x = year, y = val)) +
-        geom_line(linewidth = 1) +
-        geom_point(size = 2) +
-        scale_x_continuous(
-          breaks = seq(min(dat$year),max(dat$year),by = 1)
-        ) +
-        labs(
-          title = paste("CKD Trend:", input$measure),
-          subtitle = paste("Sex:", input$sex, "| Age group:", input$age_group),
-          x = "Year",
-          y = input$measure
-        ) +
-        theme_minimal(base_size = 14)
+    ggplot(plot_data, aes(x = year, y = val, color = sex_name, group = sex_name)) +
+      geom_ribbon(
+        aes(ymin = lower, ymax = upper, fill = sex_name),
+        alpha = 0.18,
+        color = NA
+      ) +
+      geom_line(size = 1.1) +
+      geom_point(size = 2) +
+      scale_x_continuous(breaks = sort(unique(plot_data$year))) +
+      theme_minimal() +
+      labs(
+        title = paste("CKD", input$measure, "Rate Among Adults Aged 60+ in China"),
+        subtitle = "The shaded area shows the uncertainty range from the dataset",
+        x = "Year",
+        y = "Rate per 100,000",
+        color = "Sex",
+        fill = "Sex"
+      ) +
+      theme(
+        plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5),
+        legend.position = "top"
+      )
+  })
+  
+  output$summary_table <- renderTable({
+    filtered_data() %>%
+      group_by(sex_name) %>%
+      summarise(
+        Mean = round(mean(val, na.rm = TRUE), 2),
+        SD = round(sd(val, na.rm = TRUE), 2),
+        Min = round(min(val, na.rm = TRUE), 2),
+        Max = round(max(val, na.rm = TRUE), 2),
+        .groups = "drop"
+      )
+  })
+  
+  test_result <- eventReactive(input$run_test, {
+    df <- filtered_data()
+    
+    if (length(unique(df$sex_name)) < 2) {
+      return(NULL)
+    }
+    
+    t.test(val ~ sex_name, data = df)
+  })
+  
+  output$stat_result <- renderPrint({
+    if (input$run_test == 0) {
+      cat("Click 'Run Statistical Test' to see the comparison.")
     } else {
-      ggplot(dat, aes(x = factor(year), y = val)) +
-        geom_col() +
-        labs(
-          title = paste("CKD Trend:", input$measure),
-          subtitle = paste("Sex:", input$sex, "| Age group:", input$age_group),
-          x = "Year",
-          y = input$measure
-        ) +
-        theme_minimal(base_size = 14)
+      res <- test_result()
+      
+      if (is.null(res)) {
+        cat("Please select both Male and Female.")
+      } else {
+        cat("Welch two-sample t-test\n\n")
+        cat("Female mean:", round(res$estimate[1], 2), "\n")
+        cat("Male mean:", round(res$estimate[2], 2), "\n")
+        cat("p-value:", round(res$p.value, 4), "\n")
+        cat("95% CI:", round(res$conf.int[1], 2), "to", round(res$conf.int[2], 2), "\n")
+      }
     }
   })
   
-  output$summary_table <- renderDT({
-    dat <- filtered_data()
-    datatable(dat, options = list(pageLength = 10, scrollX = TRUE))
-  })
-  
-  output$summary_text <- renderText({
-    dat <- filtered_data()
-    req(nrow(dat) > 0)
+  output$interpretation <- renderText({
+    if (input$run_test == 0) {
+      return("Click the button above to compare males and females.")
+    }
+    
+    res <- test_result()
+    
+    if (is.null(res)) {
+      return("Both Male and Female need to be selected for this comparison.")
+    }
+    
+    p_val <- res$p.value
+    ci <- res$conf.int
+    female_mean <- res$estimate[1]
+    male_mean <- res$estimate[2]
     
     paste0(
-      "Rows returned: ", nrow(dat), "\n",
-      "Selected measure: ", input$measure, "\n",
-      "Selected sex: ", input$sex, "\n",
-      "Selected age group: ", input$age_group, "\n",
-      "Year range: ", input$year_range[1], " to ", input$year_range[2], "\n",
-      "Years in filtered data: ", paste(range(dat$year), collapse = " to "), "\n",
-      "Average value: ", round(mean(dat$val, na.rm = TRUE), 2)
+      "In the selected years, the average rate is ",
+      round(female_mean, 2), " for females and ",
+      round(male_mean, 2), " for males. The p-value is ",
+      round(p_val, 4), ". The 95% confidence interval for the difference is ",
+      round(ci[1], 2), " to ", round(ci[2], 2), ". ",
+      ifelse(
+        p_val < 0.05,
+        "This suggests that the difference between the two groups is statistically meaningful.",
+        "This means the difference is not statistically significant at the 0.05 level, but the pattern can still be useful for describing sex differences in CKD burden."
+      )
     )
   })
 }
