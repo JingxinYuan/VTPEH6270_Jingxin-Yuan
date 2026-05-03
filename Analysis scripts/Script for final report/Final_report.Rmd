@@ -1,0 +1,518 @@
+---
+title: "Fianl Report"
+author: "Jingxin Yuan"
+date: "`r Sys.Date()`"
+editor_options:
+  chunk_output_type: console
+output:
+  pdf_document:
+    latex_engine: xelatex
+    fig_crop: false
+    toc: true
+    toc_depth: 1
+    number_sections: true
+bibliography: references.bib
+urlcolor: blue
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+# Introduction
+
+## Background
+
+Chronic kidney disease (CKD) is a growing global health challenge, driven by population aging, environmental exposures, and lifestyle changes. In China, CKD contributes substantially to the national disease burden, particularly among older adults [@li2023ckj]. Despite increasing attention to CKD, efforts in early detection and long-term management remain limited, especially among older populations. In addition, much of the existing evidence on CKD burden in China is based on earlier data, highlighting the need for updated and population-specific analyses to better understand recent trends. 
+
+## Dataset overview
+
+This project uses data from the Global Burden of Disease(GBD) 2023 databases for 60+ years old people in China from 2013 to 2023. This dataset includes CKD prevalence, DALYs and death rate, stratified by year, sex and age group. The complete data set and accompanying information are available at [vizhub.healthdata.org/gbd-results](https://vizhub.healthdata.org/gbd-results/)
+
+## Research question
+
+Does gender influence Chronic kidney disease (CKD) mortality rate among adults aged 60+ years in China?
+
+## Scientific plausibility and context
+
+Previous studies suggest that gender may play an important role in CKD outcomes. Gender differences have been observed in CKD prevalence, disease progression, treatment decisions, and clinical outcomes [@mayne2023sex]. Evidence from China CDC Weekly further shows that although fewer males were affected by hypertension-related CKD, the number of deaths was higher among males than females [@bu2024htnckdchina]. This pattern suggests that mortality risk may differ by gender, even when disease prevalence does not. Taken together, these findings support the plausibility of examining whether CKD mortality differs between males and females among older adults in China.
+
+## Code
+
+All code used for data cleaning, analysis and visualization is available in the GitHub repository linked below, allowing full reproducibility of the results.
+
+GitHub repository: https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan.git
+
+
+# Material & Methods
+
+```{r,results='hide'}
+
+# Packages
+library(tidyverse)
+library(scales)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+```
+
+## Data and Processing
+### Load Data
+```{r}
+
+# Set working directory
+setwd("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Data/Original data")
+
+# Load file
+data_ckd = read.csv("IHME-GBD_CKD_20260130.csv")
+
+# Preview the data
+head(data_ckd)
+
+```
+
+### Data Cleaning (NA & Abnormal value)
+```{r}
+# Check of NA
+n_na <- sum(is.na(data_ckd))
+cat("The amount of NA is",n_na,end='\n')
+
+# Check available years
+sort(unique(data_ckd$year))
+
+# Check of Abnormal Value
+# Define IQR measure to detect abnormal value
+detect_outliers <- function(x) {
+  Q1 <- quantile(x, 0.25, na.rm = TRUE)
+  Q3 <- quantile(x, 0.75, na.rm = TRUE)
+  IQR_value <- Q3 - Q1
+  lower_bound <- Q1 - 1.5 * IQR_value
+  upper_bound <- Q3 + 1.5 * IQR_value
+  return(x < lower_bound | x > upper_bound)
+}
+
+# Detected column
+numeric_cols <- c("val", "upper", "lower")
+
+# Detect
+outliers_df <- data_ckd %>%
+  mutate(across(all_of(numeric_cols), detect_outliers))
+
+outlier_summary <- colSums(outliers_df[numeric_cols], na.rm = TRUE)
+print(outlier_summary)
+
+# Replace abnormal value with median value
+median_vals <- apply(data_ckd[numeric_cols], 2, median, na.rm = TRUE)
+
+data_ckd[numeric_cols] <- lapply(numeric_cols, function(col) {
+	  data_ckd[[col]] <- ifelse(outliers_df[[col]], median_vals[col], data_ckd[[col]])
+	})
+
+# Output processed data
+write.csv(data_ckd, "C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Data/Processed data/IHME-GBD_CKD_Processed.csv")
+
+```
+
+### Variable Overview
+```{r}
+
+# Mutate class of important data column
+data_ckd = data_ckd %>%
+  mutate(
+    year = as.integer(year),
+    val = as.numeric(val),
+    lower = as.numeric(lower),
+    upper = as.numeric(upper)
+  )
+
+# Create a variable table
+data_variable = names(data_ckd)
+data_class = sapply(data_ckd,class)
+data_type = sapply(data_ckd, function(x){
+  if (is.numeric(x)) {
+    if (all(x %% 1 == 0, na.rm = TRUE)) "discrete"
+    else "continuous"
+  } else {
+    "categorical"
+  }
+})
+
+# Combine to one table
+data_ckd_table = data.frame(
+  variable = data_variable,
+  class = data_class,
+  type = data_type
+)
+
+# Output 10 head rows of variable table
+data_ckd_table = head(data_ckd_table,10)
+kable(data_ckd_table, caption = "Table 1. Variable overvie (first 10 variables)")
+
+```
+
+### Data Subset
+```{r}
+
+unique(data_ckd$measure_name)
+data_ckd_old = data_ckd %>%
+  filter(
+    location_name == "China",
+    age_name == "60+ years",
+    measure_name == "Deaths"
+  ) %>%
+  select(year,sex_name,val)
+
+```
+
+The analysis focuses on mortality rates among adults aged 60+ years old.
+
+## Statistical Analysis
+### Hypothesis
+
+- Null hypothesis (H0): There is no difference in CKD mortality rates between males and females.
+- Alternative hypothesis (H1): CKD mortality rates differ between males and females.
+
+### Approach
+
+In this study, gender is treated as the explanatory variable, which is a categorical variable with two groups (male and female), while CKD mortality rate is the outcome variable and is measured on a continuous scale. Because the objective is to compare the average mortality rates between two independent groups, an independent two-sample t-test is selected as the appropriate statistical method.
+
+### Assumption Check
+
+Normality of the outcome variable within each group was assessed using the Shapiro-Wilk test and QQ plots.
+
+```{r}
+
+# Split data
+male_data <- data_ckd_old %>% filter(sex_name == "Male") %>% pull(val)
+female_data <- data_ckd_old %>% filter(sex_name == "Female") %>% pull(val)
+
+# Shapiro test
+shapiro.test(male_data)
+shapiro.test(female_data)
+
+# QQ plots
+qqnorm(male_data, main = "QQ Plot for Male")
+qqline(male_data)
+qqnorm(female_data, main = "QQ Plot for Female")
+qqline(female_data)
+
+```
+
+The Shapiro-Wilk test suggested that mortality rates in both males (p = 0.2769) and females (p = 0.2076) don't significantly deviate from normality. The QQ plots also show that most points lie close to the reference line, with slight deviations at the tails. Overall, the normality assumption appears reasonable, supporting the use of a t-test. In addition to normality, the t-test also assumes that observations are independent and that the two groups have similar variability. In this dataset, the values are reported by year, so there could be some temporal pattern, but for this analysis they are treated as approximately independent. The variability between males and females is also fairly similar, and a Welch two-sample t-test is used, which does not require equal variances. Taken together, these assumptions seem reasonable for this comparison.
+
+## Simulation
+
+### Reason
+
+A simulation analysis was used to explore how effect size, sample size, and random noise may influence the estimated mortality difference between males and females.
+
+### Parameter setup
+
+Based on the plausible relationship identified above, CKD mortality rate can be modeled as a function of a baseline mortality level, a gender effect, and random variability. The simplified model used for the simulation can be written as:
+$$
+Mortality\ Rate = \mu + \delta \times Gender + \epsilon
+$$
+where \mu represents the baseline mortality rate, \delta represents the gender effect, and \epsilon represents random noise.
+The parameters table is below:
+```{r}
+
+param_table <- data.frame(
+  Parameter = c("Baseline mortality rate","Gender effect","Noise","Sample size"),
+  Symbol = c("$\\mu$","$\\delta$","$\\epsilon$","n"),
+  Description = c(
+    "Average CKD mortality rate among females",
+    "Difference in mortality rate between males and females",
+    "Random variability in mortality rate",
+    "Number of simulated observations"
+  )
+)
+
+knitr::kable(param_table)
+```
+
+### Simulation basis
+
+```{r}
+
+#Since female mean mortality is about 43.3, so setting baseline as 43.
+simulate_ckd <- function(effect_size, noise, sample_size){
+  gender <- rep(c("Female", "Male"), each = sample_size)
+  baseline <- 43
+  
+  mortality <- c(
+    rnorm(sample_size, mean = baseline - effect_size / 2, sd = noise),
+    rnorm(sample_size, mean = baseline + effect_size / 2, sd = noise)
+  )
+  
+  data.frame(
+    gender = gender,
+    mortality = mortality
+  )
+}
+```
+
+### Simulation output
+```{r}
+
+summarize_sim <- function(sim_data){
+  sim_data |>
+    dplyr::group_by(gender) |>
+    dplyr::summarise(
+      mean_mortality = mean(mortality),
+      sd_mortality = sd(mortality),
+      n = dplyr::n(),
+      .groups = "drop"
+    )
+}
+
+```
+
+### Simulation function
+```{r}
+
+run_sim <- function(effect_size, noise, sample_size){
+  sim_data <- simulate_ckd(effect_size, noise, sample_size)
+  summary <- summarize_sim(sim_data)
+  list(
+    data = sim_data,
+    summary = summary
+  )
+}
+
+sim_example <- run_sim(effect_size = 5, noise = 2, sample_size = 100)
+sim_example$summary
+
+```
+
+### Simulation automation
+```{r}
+
+effect_sizes <- seq(1, 10, length.out = 10)
+sample_sizes <- seq(20, 200, length.out = 10)
+noise_levels <- c(1, 3, 5)
+
+results <- list()
+
+for(e in effect_sizes){
+  for(s in sample_sizes){
+    for(n in noise_levels){
+      results[[length(results)+1]] <- run_sim(e,n,s)
+    }
+  }
+}
+
+```
+
+# Results
+
+## Exploratory Analysis
+
+### Distribution Checking
+```{r}
+
+# Histogram on the mortality burden of CKD of 60+ years people in China
+# Histogram
+mean_d <- mean(data_ckd_old$val, na.rm = TRUE)
+median_d <- median(data_ckd_old$val, na.rm = TRUE)
+
+vlines <- data.frame(
+  stat = c("Mean", "Median"),
+  xint = c(mean_d, median_d)
+)
+
+p1 <- ggplot(data_ckd_old, aes(x = val)) +
+  geom_histogram(bins = 25, fill = "grey") +
+  geom_vline(
+    data = vlines,
+    aes(xintercept = xint, linetype = stat)
+  ) +
+  scale_linetype_manual(values = c("Mean" = "dashed", "Median" = "dotted")) +
+  theme_classic() +
+  labs(
+    title = "Distribution of CKD Mortality Rate of\n 60+ Years Old People in China (2013–2023)",
+    x = "Mortality rate (per 100,000)",
+    y = "Count",
+    linetype = "Statistic",
+    caption = "Figure 1. Histogram of CKD Mortality rate in China with mean and median lines."
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Distribution on the burden of CKD of 60+ years people in China.png", plot = p1)
+
+# Show plot
+p1
+
+```
+
+The distribution of CKD mortality rates among adults aged 60+ in China appears roughly centered between 40 and 48 per 100,000. Most values are clustered around the mid-40s, with a slight right skew, as the mean is slightly higher than the median. It suggests that while mortality rates are generally stable across years, there are some higher values that may reflect periods of increased burden. The overall distribution does not appear highly skewed, which supports the use of parametric methods such as the t-test in comparing mortality rates between males and females. Since this distribution combines both male and female observations, the overlap in values indicates that any gender difference in mortality is likely moderate rather than extreme, which is consistent with the later statistical results.
+
+### Grouped Summary Statistics
+```{r}
+
+summary_table <- data_ckd_old %>%
+  group_by(sex_name) %>%
+  summarise(
+    Mean = mean(val),
+    SD = sd(val),
+    Median = median(val),
+    Min = min(val),
+    Max = max(val)
+  )
+kable(summary_table, digits = 2)
+
+```
+
+Descriptive statistics show that CKD mortality rates among adults aged 60+ years in China are consistently higher in males than in females. The mean mortality rate is 46.11 per 100,000 in males compared to 43.30 in females. Similarly, the median value is higher in males (46.42) than females (43.48), suggesting that the difference is not driven by extreme values. The relatively similar standard deviations which are 3.28 and 3.50 show comparable variability between the two groups. Overall, these statistics suggest a higher mortality burden among males.
+
+### Mortality difference
+```{r}
+
+data_ckd_old_diff <- data_ckd_old %>%
+  pivot_wider(names_from = sex_name, values_from = val) %>%
+  mutate(
+    mortality_difference = Male - Female
+  ) %>%
+  select(year, mortality_difference)
+
+data_ckd_old <- data_ckd_old %>%
+  left_join(data_ckd_old_diff, by = "year")
+head(data_ckd_old)
+
+```
+
+This study creates a derived variable "mortality_difference" to show the difference in mortality rates between males and females. Positive values mean higher mortality among males, while negative values mean higher mortality among females.
+
+### Comparative visualization on mortality
+```{r}
+
+p2 <- ggplot(data_ckd_old, aes(x = year, y = val, color = sex_name)) +
+  geom_line(size = 1.2) +
+  labs(
+    title = "CKD Mortality Rate in China (Age 60+ Years)",
+    x = "Year",
+    y = "Mortality Rate per 100,000",
+    color = "Gender"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "top"
+  )
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Gender trend on mortality of CKD of 60+ years people in China.png", plot = p2)
+
+# Show plot
+p2
+
+```
+
+This time trend visualization shows that CKD mortality rates among adults aged 60+ years in China declined from the 2013 to 2023, followed by a slight increase in subsequent years. Across the entire study period, mortality rates remain consistently higher in males than in females. The parallel movement of the two lines suggests that both genders experienced similar temporal patterns, but males maintained a persistent higher mortality burden. Overall, the figure supports the hypothesis of a sustained gender disparity in CKD mortality.
+
+### Visualize mortality difference between male and female
+```{r}
+
+p3 <- ggplot(data_ckd_old, aes(x = year, y = mortality_difference)) +
+  geom_col(fill = "grey") +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  labs(
+    title = "Sex Difference in CKD Mortality (Male − Female)",
+    x = "Year",
+    y = "Mortality Rate Difference (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Mortality difference between gender of CKD of 60+ years people in China.png",plot = p3)
+
+# Show plot
+p3
+
+```
+
+The bar chart shows the annual difference in CKD mortality rates between males and females aged 60+ years in China. Across all observed years, the difference remains above zero, indicating consistently higher mortality among males. The magnitude of the difference fluctuates over time, with a gradual increase from 2010 and a peak in 2022, suggesting a temporary widening of the gender disparity. Although the gap narrows slightly in the most recent year, the persistent positive difference supports the presence of higher male mortality.
+
+## Statistical Results
+
+### T-test
+```{r}
+
+t_test_result <- t.test(val ~ sex_name, data = data_ckd_old)
+t_test_result
+
+```
+
+### Results
+
+The independent two-sample t-test shows that the mean CKD mortality rate is 43.30 for females and 46.11 for males, indicating a higher average mortality among males. However, this difference isn't statistically significant since t-value is -1.94 and p-value is 0.0667. The 95% confidence interval (-5.83 to 0.21) includes zero, suggesting that the observed difference may be due to random variation rather than a true effect. Although the result isn't statistically significant at the 0.05 level, the p-value suggests a marginal trend.
+
+## Simulation Results
+```{r}
+
+# Reconstruct parameters in the same order
+param_grid <- expand.grid(
+  noise = noise_levels,
+  sample_size = sample_sizes,
+  effect_size = effect_sizes
+)
+
+# Extract estimated difference between males and females from each simulation
+viz_df <- do.call(rbind, lapply(seq_along(results), function(i){
+  x <- results[[i]]
+  s <- x$summary
+  female_mean <- s$mean_mortality[s$gender == "Female"]
+  male_mean <- s$mean_mortality[s$gender == "Male"]
+  
+  data.frame(
+    effect_size = param_grid$effect_size[i],
+    noise = param_grid$noise[i],
+    sample_size = param_grid$sample_size[i],
+    estimated_difference = as.numeric(male_mean - female_mean)
+  )
+}))
+
+summary_viz <- viz_df |>
+  dplyr::group_by(noise, sample_size, effect_size) |>
+  dplyr::summarise(
+    mean_est = mean(estimated_difference),
+    sd_est = sd(estimated_difference),
+    .groups = "drop"
+  )
+
+# Plot
+p4 <- ggplot(viz_df, aes(x = sample_size, y = estimated_difference, color = effect_size)) +
+  geom_jitter(width = 5, height = 0, alpha = 0.4, size = 1.5)+
+  facet_grid(~ noise, labeller = label_both) +
+  labs(
+    title = "Simulation of estimated gender differences in \nCKD mortality 
+    across effect sizes, sample sizes, and noise",
+    x = "Sample size per group",
+    y = "Estimated sample mean difference \n in mortality rate (Male - Female)",
+    color = "True effect size"
+  ) +
+  theme_classic() +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    panel.spacing = unit(1.5, "lines")
+  )
+
+ggsave("C:/Users/乌乌没有仙人/Desktop/6270/HW5/VTPEH6270_Jingxin-Yuan/Output/Figures/Simulation results across effect sizes, sample sizes and noise.png", plot = p4)
+
+# Show Plot
+p4
+
+```
+
+These simulations show that the estimated mortality difference between males and females increases with the true effect size, as larger true differences are reflected in higher estimated values across simulations. As sample size increases, the estimates become more tightly clustered, indicating reduced variability and more stable estimation. In contrast, higher noise levels lead to a wider spread of estimates, making the results less consistent across simulations. Overall, the figure suggests that larger sample sizes improve precision, while higher noise reduces the reliability of detecting the true gender difference.
+
+# Conclusion
+
+This study examined whether gender is associated with CKD mortality among adults aged 60+ years in China. Across the study period, exploratory analyses consistently show that males have higher mortality rates than females. Both the summary statistics and time trend figures indicate a persistent gap, with male mortality remaining above female mortality in every year observed.
+
+However, the statistical test doesn't provide strong evidence for a significant difference. The t-test results show that although the mean mortality rate is higher in males (46.11) than females (43.30), the difference isn't statistically significant at the 0.05 level (p = 0.0667), and the confidence interval includes 0. It suggests that the observed difference may be influenced by variability in the data rather than a clearly detectable effect.
+
+The simulation analysis helps explain this result. It shows that when sample size is relatively small or variability is high, the estimated gender difference can vary substantially, even when a true effect exists. Larger sample sizes produce more stable estimates, while higher noise leads to greater uncertainty in detecting differences. 
+
+All in all, these findings suggest that there is likely a real but moderate gender difference in CKD mortality among older adults in China. The consistent pattern observed in the data supports this, but the available sample size and variability limit the statistical power to detect it. Further studies using larger datasets or methods that better account for temporal structure may help clarify this relationship.
