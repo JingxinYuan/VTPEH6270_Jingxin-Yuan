@@ -14,9 +14,7 @@ This project examines the burden of CKD in China in 2013-2023, including prevale
 Email: jy2245@cornell.edu
 
 # Reasearch question/objectives
-- How have CKD prevalence, disability-adjusted life years(DALYs) and death rate changed among adults ages 60+ years in China from 2013 to 2023?
-- Is CKD mortality rate associated with gender in China among adults ages 60+ years between 2013-2023?
-- Does gender influence CKD mortality rate among adults aged 60+ years in China?
+- Does gender influence Chronic kidney disease (CKD) mortality rate among adults aged 60+ years in China?
 
 # Data source and description
 - This project uses data from the Global Burden of Disease (GBD) 2023 databases.The complete data set and accompanying information are available at [vizhub.healthdata.org/gbd-results](https://vizhub.healthdata.org/gbd-results/)
@@ -24,19 +22,30 @@ Email: jy2245@cornell.edu
 - The "Processed data" folder contains the data cleaning script and the cleaned dataset used for analysis.
 
 # Structure of workflow
-1. data_exploration - cleans the raw data and generates the processed dataset
-2. data_statistical-analysis - performs the t-test to compare CKD mortality between males and females
-3. data_simulation - runs simulations to examine how sample size, noise, and effect size affect detection of differences
-4. shiny_app - explore temporal trends in CKD burden in China by measure, sex, age group, and year
+1. final_report - combination of data_exploration, data_statistical-analysis, and data_simulation
+2. shiny_app - explore temporal trends in CKD burden in China by measure, sex, age group, and year
+3. data_exploration - cleans the raw data and generates the processed dataset
+4. data_statistical-analysis - performs the t-test to compare CKD mortality between males and females
+5. data_simulation - runs simulations to examine how sample size, noise, and effect size affect detection of differences
+
+# Links to Script
+- Analysis scripts/Script for final report/Final_report.R
+- Analysis scripts/Script for shiny app/HW7_CKD_JIngxinYuan/app.R
+- Analysis scripts/Script for data exploration/Data_exploration.R
+- Analysis scripts/Script for data simulation/Data_simulation.R
+- Analysis scripts/Script for data statistical analysis/Data_statistical analysis.R
 
 # Links to reports
+- Output/Reports/Final_report.pdf
+  https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Final_report.pdf
+- Shiny app:
+  https://jingxinyuan2026.shinyapps.io/HW7_CKD_JIngxinYuan/
 - Output/Reports/Data_exploration.pdf
   https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_exploration.pdf
 - Output/Reports/Data_statistical-analysis.pdf
   https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_statistical-analysis.pdf
 - Output/Reports/Data_simulation.pdf
   https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_simulation.pdf
-- https://jingxinyuan2026.shinyapps.io/HW7_CKD_JIngxinYuan/
 
 # AI tool disclosure
 ChatGPT was used for guidance on code structure and debugging. All analysis and interpretation were completed by the author.
