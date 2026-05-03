@@ -27,6 +27,7 @@ Email: jy2245@cornell.edu
 1. data_exploration - cleans the raw data and generates the processed dataset
 2. data_statistical-analysis - performs the t-test to compare CKD mortality between males and females
 3. data_simulation - runs simulations to examine how sample size, noise, and effect size affect detection of differences
+4. shiny_app - explore temporal trends in CKD burden in China by measure, sex, age group, and year
 
 # Links to reports
 - Output/Reports/Data_exploration.pdf
@@ -35,6 +36,7 @@ Email: jy2245@cornell.edu
   https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_statistical-analysis.pdf
 - Output/Reports/Data_simulation.pdf
   https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_simulation.pdf
+- https://jingxinyuan2026.shinyapps.io/HW7_CKD_JIngxinYuan/
 
 # AI tool disclosure
 ChatGPT was used for guidance on code structure and debugging. All analysis and interpretation were completed by the author.
