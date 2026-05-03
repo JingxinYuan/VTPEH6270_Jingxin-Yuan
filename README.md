@@ -30,22 +30,35 @@ Email: jy2245@cornell.edu
 
 # Links to Script
 - Analysis scripts/Script for final report/Final_report.R
+- https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Analysis%20scripts/Script%20for%20final%20report/Final_report.R
+
 - Analysis scripts/Script for shiny app/HW7_CKD_JIngxinYuan/app.R
+- https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Analysis%20scripts/Script%20for%20shiny%20app/HW7_CKD_JIngxinYuan/app.R
+
 - Analysis scripts/Script for data exploration/Data_exploration.R
+- https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Analysis%20scripts/Script%20for%20data%20exploration/Data_exploration.R
+
 - Analysis scripts/Script for data simulation/Data_simulation.R
+- https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Analysis%20scripts/Script%20for%20data%20simulation/Data_simulation.R
+
 - Analysis scripts/Script for data statistical analysis/Data_statistical analysis.R
+- https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Analysis%20scripts/Script%20for%20data%20statistical%20analysis/Data_statistical%20analysis.R
 
 # Links to reports
 - Output/Reports/Final_report.pdf
-  https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Final_report.pdf
+- https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Final_report.pdf
+
 - Shiny app:
-  https://jingxinyuan2026.shinyapps.io/HW7_CKD_JIngxinYuan/
+- https://jingxinyuan2026.shinyapps.io/HW7_CKD_JIngxinYuan/
+
 - Output/Reports/Data_exploration.pdf
-  https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_exploration.pdf
+- https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_exploration.pdf
+
 - Output/Reports/Data_statistical-analysis.pdf
-  https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_statistical-analysis.pdf
+- https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_statistical-analysis.pdf
+
 - Output/Reports/Data_simulation.pdf
-  https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_simulation.pdf
+- https://github.com/JingxinYuan/VTPEH6270_Jingxin-Yuan/blob/main/Output/Reports/Data_simulation.pdf
 
 # AI tool disclosure
 ChatGPT was used for guidance on code structure and debugging. All analysis and interpretation were completed by the author.
